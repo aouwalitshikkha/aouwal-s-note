@@ -129,12 +129,6 @@ Adding this base model early:
 This model intentionally includes only what search engines and production systems actually need — nothing more, nothing less.
 
 
-### `fallback: str` — What it means and why it exists
-
-`fallback: str` is a **type hint**, not a Django or Python requirement.
-
----
-
 ### Usage in Template 
 
 ```html
