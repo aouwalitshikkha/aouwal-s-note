@@ -127,3 +127,42 @@ Adding this base model early:
 - Keeps optimization logic centralized and predictable
 
 This model intentionally includes only what search engines and production systems actually need — nothing more, nothing less.
+
+
+### `fallback: str` — What it means and why it exists
+
+`fallback: str` is a **type hint**, not a Django or Python requirement.
+
+---
+
+### Usage in Template 
+
+```html
+<title>{{ object.get_meta_title(object.title) }}</title>
+<meta name="description"  content="{{ object.get_meta_description }}">
+<meta  name="description"
+  content="{{ object.get_meta_description|default:object.content|tuncatechars:155 }}" >
+
+```
+
+or 
+```python
+def blog_detail(request, slug):
+    post = BlogPost.objects.get(slug=slug)
+
+    context = {
+        "post": post,
+        "seo_title": post.get_meta_title(post.title),
+        "seo_description": post.get_meta_description(
+            post.content[:155]
+        ),
+    }
+
+    return render(request, "blog/detail.html", context)
+```
+
+then 
+```html
+<title>{{ seo_title }}</title>
+<meta name="description" content="{{ seo_description }}">
+```
