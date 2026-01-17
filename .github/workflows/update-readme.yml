@@ -5,8 +5,11 @@ on:
     branches:
       - main
     paths:
-      - '**/'
+      - '**'
       - '!README.md'
+
+permissions:
+  contents: write
 
 jobs:
   update-readme:
@@ -24,6 +27,7 @@ jobs:
           "# MY NOTES`n" | Out-File README.md
 
           Get-ChildItem -Directory |
+          Where-Object { $_.Name -notmatch '^\.(git|github)$' } |
           Sort-Object Name |
           ForEach-Object {
               $encoded = [System.Uri]::EscapeDataString($_.Name)
@@ -40,6 +44,6 @@ jobs:
           if (git diff --cached --quiet) {
             Write-Host "No changes to commit"
           } else {
-            git commit -m "Updated README.md"
+            git commit -m "Auto-update README"
             git push
           }
