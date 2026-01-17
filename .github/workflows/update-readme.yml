@@ -24,15 +24,19 @@ jobs:
       - name: Generate README.md
         shell: pwsh
         run: |
-          "# MY NOTES`n" | Out-File README.md -Encoding utf8
+          $content = @()
+          $content += "# MY NOTES"
+          $content += ""
+
           Get-ChildItem -Directory |
           Where-Object { $_.Name -notmatch '^\.(git|github)$' } |
           Sort-Object Name |
           ForEach-Object {
               $encoded = [System.Uri]::EscapeDataString($_.Name)
-              "- 📘 [$($_.Name)]($encoded/)"
-          } | Add-Content README.md -Encoding utf8
+              $content += "- 📘 [$($_.Name)]($encoded/)"
+          }
 
+          $content | Set-Content README.md -Encoding utf8
 
       - name: Commit and push if README changed
         shell: pwsh
