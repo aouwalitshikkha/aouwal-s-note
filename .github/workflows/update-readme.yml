@@ -1,0 +1,45 @@
+name: Auto-update README
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/'
+      - '!README.md'
+
+jobs:
+  update-readme:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Generate README.md
+        shell: pwsh
+        run: |
+          "# MY NOTES`n" | Out-File README.md
+
+          Get-ChildItem -Directory |
+          Sort-Object Name |
+          ForEach-Object {
+              $encoded = [System.Uri]::EscapeDataString($_.Name)
+              "- 📘 [$($_.Name)]($encoded/)"
+          } | Add-Content README.md
+
+      - name: Commit and push if README changed
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add README.md
+          if (git diff --cached --quiet) {
+            Write-Host "No changes to commit"
+          } else {
+            git commit -m "Updated README.md"
+            git push
+          }
